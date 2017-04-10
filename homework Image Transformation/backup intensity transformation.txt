@@ -1,0 +1,130 @@
+from PIL import Image
+from pylab import *
+from math import *
+import cv2
+import numpy as np
+
+img=cv2.imread('red panda.jpg',0)
+row,col=img.shape
+negative=np.zeros((row,col))
+#for i in range (row):
+ #   for j in range (col):
+        #print (img[i][j])
+for i in range (row):
+    for j in range (col):
+        negative[i][j]=255-img[i][j]
+
+#negative.save('negative.jpg')
+negative=uint8(negative)
+log=np.zeros((row,col))
+for i in range (row):
+    for j in range (col):
+        log[i][j]=50*log10(1+img[i][j])
+
+log=uint8(log)
+
+gamma=np.zeros((row,col))
+g=0.1
+for i in range (row):
+    for j in range (col):
+        gamma[i][j]=50*pow(img[i][j],g)
+
+gamma=uint8(log)
+
+cv2.imshow('original image',img)
+cv2.imshow('negative',negative)
+cv2.imshow('log transformation',log)
+cv2.imshow('gamma',gamma)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+#histogram equalization
+from PIL import Image
+from pylab import *
+from math import *
+import cv2
+import numpy as np
+
+img=cv2.imread('red panda.jpg',0)
+row,col=img.shape
+
+histogram=np.zeros(256)
+for i in range (row):
+    for j in range (col):
+        histogram[img[i][j]]=histogram[img[i][j]]+1
+
+pr=np.zeros(256)
+for i in range (256):
+    pr[i]=histogram[i]/(row*col)
+
+s=np.zeros(256)
+for i in range (256):
+    sum=0
+    for j in range (i):
+        sum=sum+pr[j]    
+    s[i]=255*sum
+
+result=np.zeros((row,col))
+
+for i in range (row):
+    for j in range (col):
+        result[i][j]=s[img[i][j]]
+
+result=uint8(result)
+cv2.imshow('original',img)
+cv2.imshow('histogram equalization',result)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#convolusion
+from PIL import Image
+from pylab import *
+from math import *
+import cv2
+import numpy as np
+
+img=cv2.imread('bird.jpg',0)
+row,col=img.shape
+
+result=np.zeros((row,col))
+
+maskSize=3
+mask=np.zeros((maskSize,maskSize))
+
+weight=0
+#for i in range(maskSize):
+#    for j in range (maskSize):
+#        x = raw_input('Enter the numbers into the array: ')
+#        data[i][j].append(x)
+#        weight=weight+data[i][j]
+
+mask=[[0,-1,0],[-1,4,-1],[0,-1,0]]
+
+#for k in range (maskSize//2,row-maskSize//2):
+#    for l in range (maskSize//2,col-maskSize//2):
+#        acc=0
+#        for i in range (-maskSize//2,maskSize//2):
+#            for j in range (-maskSize//2,maskSize//2):
+#                acc=acc+img[k-i][l-j]*mask[i+maskSize//2][j+maskSize//2]
+for k in range (1,row-1):
+    for l in range (1,col-1):
+        acc=0
+        for i in range (-1,1):
+            for j in range (-1,1):
+                acc=acc+img[k-i][l-j]*mask[i+1][j+1]
+        result[k][l]=acc #/weight
+
+#result=uint8(result)
+#cv2.imshow('original',img)
+#cv2.imshow('histogram equalization',result)
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
+
+fig, axs = subplots(1, 4, figsize=(32, 32))
+axs[0].imshow(img)
+axs[0].axis('on')
+axs[1].imshow(result)
+axs[1].axis('on')
+gray()
+show()             
